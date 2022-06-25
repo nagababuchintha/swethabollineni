@@ -1,0 +1,132 @@
+<html>
+<head>
+<title>Sending Messages</title>
+<style>
+.demo-ribbon {
+  width: 100%;
+  height: 34vh;
+  background-color: #3baddc;
+  flex-shrink: 0;
+}
+
+.demo-main {
+  margin-top: -35vh;
+  flex-shrink: 0;
+}
+
+.demo-header .mdl-layout__header-row {
+  padding-left: 40px;
+}
+
+.demo-container {
+  max-width: 1600px;
+  width: calc(100% - 16px);
+  margin: 0 auto;
+}
+
+.demo-content {
+  border-radius: 2px;
+  padding: 0px 56px 80px;
+}
+
+.demo-layout.is-small-screen .demo-content {
+  padding: 0px 28px 40px;
+}
+
+.demo-content h3 {
+  margin-top: 48px;
+}
+
+.demo-footer {
+  padding-left: 40px;
+}
+
+.demo-footer .mdl-mini-footer--link-list a {
+  font-size: 13px;
+}
+
+.mdl-textfield {
+  width: 100%
+}
+
+.success-help {
+  padding: 0 15px;
+  vertical-align: 0px;
+  display: none;
+  font-size: 16px;
+  color: #444;
+}
+
+.mdl-spinner {
+  vertical-align: middle;
+  margin: 0px 10px;
+  display: none;
+}
+</style>
+</head>
+<body>
+<div class="demo-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100">
+  <div class="demo-ribbon"></div>
+  <main class="demo-main mdl-layout__content">
+    <div class="demo-container mdl-grid">
+      <div class="mdl-cell mdl-cell--1-col mdl-cell--hide-tablet mdl-cell--hide-phone"></div>
+      <div class="demo-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--10-col">
+        <h5>Live SMS App</h5>
+        <form class="sendSMS" method="post" autocomplete="off">
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type='tel' pattern="\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|
+2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|
+4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$" id="to"  data-required="true">
+            <label class="mdl-textfield__label" for="sample3">To (Pattern:+&lt;Country_Code&gt;&lt;Mobile_Number&gt;)</label>
+          </div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <textarea class="mdl-textfield__input" type="text" rows="3" id="smsbody" data-required="true"></textarea>
+            <label class="mdl-textfield__label" for="sample5">SMS Body</label>
+          </div>
+          <div>
+            <button style="background-color: #3baddc;" type="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored">Send</button>
+            <div class="mdl-spinner mdl-js-spinner is-active"></div>
+
+            <span class="success-help">Your message has been sent!</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
+$(function() {
+  ["to", "smsbody"].forEach(function(field) {
+    $("#" + field).attr("required", true);
+    $("#" + field).focus(function() {
+      $(".success-help").fadeOut("fast");
+    });
+  });
+
+  $(".sendSMS").submit(function(e) {
+    $(".mdl-spinner").fadeIn("slow").css("display", "inline-block");
+    e.preventDefault();
+    var to = $("#to").val();
+    var smsbody = $("#smsbody").val();
+    $.ajax({
+      url: "https://mybench-sendingsms.backbench.io/send",
+      data: {
+        to: to,
+        smsbody: smsbody
+      },
+      error: function() {
+        $(".mdl-spinner").fadeOut("fast");
+        $(".success-help").html("An error has occurred").fadeIn("slow");
+      },
+      success: function(data) {
+        $(".mdl-spinner").fadeOut("fast");
+        ["to", "smsbody"].forEach(function(field) {
+          $("#" + field).val("");
+        });
+        $(".success-help").fadeIn("slow");
+      },
+      type: "POST"
+    });
+  });
+});
